@@ -17,7 +17,6 @@ from speleobox.utils import (
     get_neighbors,
     REVERSE_MOVES,
     mutable_copy,
-    immutable_copy,
     set_cell,
     enumerate_box_coordinates,
     generate_empty_box,

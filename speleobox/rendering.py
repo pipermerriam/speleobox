@@ -126,7 +126,7 @@ def render_level(level):
 def render_box(box):
     rendered_levels = map(render_level, box)
     headings = [
-        ("Level #{0}".format(n + 1),) for n in range(len(rendered_levels))
+        (tuple("Level #{0}".format(n + 1)),) for n in range(len(rendered_levels))
     ]
     return tuple(itertools.chain.from_iterable(
         itertools.chain.from_iterable(zip(headings, rendered_levels))
