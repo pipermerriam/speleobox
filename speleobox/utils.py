@@ -161,3 +161,11 @@ def enumerate_box_coordinates(box):
         for row, y in enumerate(x):
             for cell, _ in enumerate(y):
                 yield CellCoordinate(level=level, y=row, x=cell)
+
+
+def get_box_dimensions(box):
+    return (
+        len(box),
+        len(box[0]),
+        len(box[0][0]),
+    )

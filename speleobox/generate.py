@@ -20,6 +20,7 @@ from speleobox.utils import (
     set_cell,
     enumerate_box_coordinates,
     generate_empty_box,
+    get_box_dimensions,
 )
 
 INVALID_ENTRANCE = "Entrance coordinate is not on the edge of the box"
@@ -117,7 +118,24 @@ def get_path_termination_coordinate(start, path):
     return coordinate
 
 
-def generate_path(entrance, _exit, box):
+def get_move_choices(coordinate, entrance, _exit, path, box, failed_paths):
+    move_choices = get_valid_moves(
+        coordinate,
+        apply_path_to_box(entrance, path, box),
+    )
+    choices = [
+        c for c in move_choices.keys() if tuple(path + [c]) not in failed_paths]
+    random.shuffle(choices)
+    return choices
+
+
+def get_failed_choice_tracker(entrance, _exit, dimensions):
+    return set()
+
+
+def generate_path(entrance, _exit, box,
+                  tracker_getter=get_failed_choice_tracker,
+                  get_choices_callback=get_move_choices):
     """
     Given a box, an entrance coordinate, and an exit coordinate generate a path
     to fill the space.
@@ -138,7 +156,7 @@ def generate_path(entrance, _exit, box):
         if entrance_color == exit_color:
             raise ValueError(IMPOSSIBLE_TO_FILL_SPACE)
 
-    failed_paths = set()
+    failed_paths = tracker_getter(entrance, _exit, get_box_dimensions(box))
     path = []
 
     while len(failed_paths) < 1000000:
@@ -156,18 +174,16 @@ def generate_path(entrance, _exit, box):
                 continue
             path.append(_exit.panel)
             break
-        move_choices = get_valid_moves(
+        move_choices = get_choices_callback(
             current_coordinate,
+            entrance,
+            _exit,
+            path,
             apply_path_to_box(entrance, path, box),
+            failed_paths,
         )
-        while move_choices:
-            direction = random.choice(move_choices.keys())
-            move_choices.pop(direction)
+        for direction in move_choices:
             path.append(direction)
-            if tuple(path) in failed_paths:
-                # We've already tried this choice and it is bad.
-                path.pop()
-                continue
             marooned_coordinates = get_marooned_coordinates(
                 move(current_coordinate, direction),
                 apply_path_to_box(entrance, path, box)

@@ -7,6 +7,10 @@ from speleobox.generate import (
     apply_path_to_box,
     generate_path,
 )
+from speleobox.learning.search import (
+    get_learning_tracker,
+    get_learning_move_choices,
+)
 from speleobox.rendering import (
     render_box,
 )
@@ -24,7 +28,11 @@ def find_paths():
     _exit = PanelCoordinate(1, 0, 1, 'front')
 
     while True:
-        path = generate_path(entrance, _exit, generate_empty_box(4, 4, 4))
+        path = generate_path(
+            entrance, _exit, generate_empty_box(4, 4, 4),
+            tracker_getter=get_learning_tracker,
+            get_choices_callback=get_learning_move_choices,
+        )
         filename = path_to_file_path(path)
         if os.path.exists(filename):
             continue
